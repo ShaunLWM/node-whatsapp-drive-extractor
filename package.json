@@ -7,6 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "async": "^2.6.1",
+    "download": "^7.1.0",
     "fs-extra": "^7.0.1",
     "request": "^2.88.0",
     "rsa-pem-from-mod-exp": "^0.8.4"

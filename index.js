@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const config = require("./config");
 const async = require("async");
+const download = require("download");
 
 request = request.defaults({
     headers: {
@@ -61,10 +62,8 @@ class Extractor {
             form: payload
         };
 
-        // console.log(opts);
         try {
             let response = await this.fetch(opts, true);
-            // console.log(response);
             let match = /Auth=(.*?)\n/g.exec(response);
             if (match.length < 1) {
                 throw new Error("[!] getGoogleDriveToken: unable to parse bearer token");
@@ -140,19 +139,16 @@ class Extractor {
         try {
             let files = this.localFileList();
             let data = JSON.parse(results);
-            // console.log(data);
             data.map(entries => {
                 if (!files.includes(entries["m"]) || entries["f"].toLowerCase().includes("database")) {
                     let local = `${folder}${path.sep}${entries["f"].replace("/", path.sep)}`;
-                    // console.log(local);
                     if (fs.existsSync(local) && !local.toLowerCase().includes("database")) {
                         console.log(`[!] skipped ${local}`);
                     } else {
-                        // console.log(`[@] pushed ${local}`);
                         this.workerQueue.push({ entries_r: entries["r"], local, entries_m: entries["m"] });
                     }
                 }
-            })
+            });
 
             return true;
         } catch (error) {
@@ -172,48 +168,42 @@ class Extractor {
         return flist.split("\n");
     }
 
-    downloadAll() {
+    async downloadAll() {
         console.log("[@] trying to download all the files now..");
-        try {
-            if (this.workerQueue.length < 1) {
-                throw new Error("Nothing to download");
+        if (this.workerQueue.length < 1) {
+            throw new Error("Nothing to download");
+        }
+
+        console.log(`[@] ${this.workerQueue.length} files to download..`);
+        let totalItems = this.workerQueue.length;
+        let currentIndex = 1;
+        async.eachSeries(this.workerQueue, async (item, callback) => {
+            let { entries_r, local, entries_m } = item;
+            fs.ensureDirSync(path.dirname(local));
+            if (fs.pathExistsSync(local)) {
+                const stat = fs.lstatSync(local);
+                if (stat.isFile()) {
+                    fs.unlinkSync(local);
+                }
             }
 
-            console.log(`[@] ${this.workerQueue.length} files to download..`);
-            // console.log(this.bearer);
-            async.eachSeries(this.workerQueue, (item, callback) => {
-                let { entries_r, local, entries_m } = item;
-                fs.ensureDirSync(path.dirname(local));
-                if (fs.pathExistsSync(local)) {
-                    const stat = fs.lstatSync(local);
-                    if (stat.isFile()) {
-                        fs.unlinkSync(local);
-                    }
-                }
-
-                request.get({
-                    url: `https://www.googleapis.com/drive/v2/files/${entries_r}?alt=media`,
+            try {
+                await download(`https://www.googleapis.com/drive/v2/files/${entries_r}?alt=media`, path.dirname(local), {
                     headers: {
-                        "Authorization": `Bearer: ${this.bearer}`,
-                        "Accept-Language": "en-US,en-SG;q=0.9,en;q=0.8",
-                        "Connection": "keep-alive",
-                        "User-Agent": "Mozilla/5.0 (Linux; U; Android 2.2; en-gb; GT-P1000 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1"
-                    }
-                }).on("response", res => {
-                    let fws = fs.createWriteStream(local);
-                    res.pipe(fws);
-                    res.on('end', () => {
-                        console.log(`[@] downloaded ${local}`);
-                        this.logStream.write(`${entries_m}\n`);
-                        return callback();
-                    });
+                        "Authorization": `Bearer ${this.bearer}`,
+                    },
+                    filename: path.basename(local)
                 });
-            }, error => {
-                throw new Error(error);
-            })
-        } catch (error) {
+
+                console.log(`[-] downloaded ${local}  (${currentIndex}/${totalItems})`);
+                currentIndex++;
+            } catch (error) {
+                console.error(error);
+                return callback();
+            }
+        }, error => {
             throw new Error(error);
-        }
+        });
     }
 
     async fetch(opts, isPost = false) {
@@ -252,22 +242,21 @@ let extract = new Extractor();
 (async () => {
     try {
         let token = await extract.getGoogleAccountTokenFromAuth();
-        console.log(`[@] got token ${token}`);
+        console.log(`[@] got token from google`);
         let bearer = await extract.getGoogleDriveToken(token);
-        console.log(`got bearer ${bearer}`);
+        console.log(`[@] got bearer token`);
         let drives = await extract.gDriveFileMap();
         console.log(`[@] got drives`);
-        require("fs").writeFileSync("./test.json", JSON.stringify(drives, null, 2));
         drives.map(async (drive, i) => {
             let folder = "WhatsApp";
             if (drives.length > 1) {
-                console.log(`Backup: ${i}`);
+                console.log(`[-] Backup: ${i}`);
                 folder = `WhatsApp-${i}`;
             }
 
             extract.getMultipleFiles(drive["results"], folder);
-            console.log("[@] file list downloaded..");
-            extract.downloadAll();
+            console.log("[@] file list successfully downloaded..");
+            await extract.downloadAll();
         });
     } catch (error) {
         console.error(error);
