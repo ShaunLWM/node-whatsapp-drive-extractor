@@ -2,6 +2,12 @@
   "name": "node-whatsapp-drive-extractor",
   "version": "0.0.1",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "repository": "https://github.com/ShaunLWM/node-whatsapp-drive-extractor.git",
   "author": "ShaunLWM",
   "license": "MIT",
