@@ -156,6 +156,12 @@ class Extractor {
         }
     }
 
+    getFileList() {
+        return this.workerQueue.map(file => {
+            return file["local"];
+        })
+    }
+
     localFileList() {
         let logfile = `.${path.sep}logs${path.sep}files.log`;
         if (!fs.pathExistsSync(logfile)) {
@@ -237,28 +243,4 @@ class Extractor {
     }
 }
 
-
-let extract = new Extractor();
-(async () => {
-    try {
-        let token = await extract.getGoogleAccountTokenFromAuth();
-        console.log(`[@] got token from google`);
-        let bearer = await extract.getGoogleDriveToken(token);
-        console.log(`[@] got bearer token`);
-        let drives = await extract.gDriveFileMap();
-        console.log(`[@] got drives`);
-        drives.map(async (drive, i) => {
-            let folder = "WhatsApp";
-            if (drives.length > 1) {
-                console.log(`[-] Backup: ${i}`);
-                folder = `WhatsApp-${i}`;
-            }
-
-            extract.getMultipleFiles(drive["results"], folder);
-            console.log("[@] file list successfully downloaded..");
-            await extract.downloadAll();
-        });
-    } catch (error) {
-        console.error(error);
-    }
-})();
+module.exports = new Extractor();

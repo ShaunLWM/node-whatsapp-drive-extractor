@@ -15,7 +15,7 @@ Download your synced WhatsApp medias from Google Drive backup
 1. Clone the repository using "git clone xxx" or download  [master zip](https://github.com/ShaunLWM/node-whatsapp-drive-extractor/archive/master.zip)
 2.  `yarn install`
 3. Rename `config-sample.js` to `config.js` and fill in required details `gmail,passw & celnumbr`.
-4. Run `npm start` or `node index.js`.
+4. Run `npm start` or `node cli.js`.
 
 ## TODO
 - commandline version

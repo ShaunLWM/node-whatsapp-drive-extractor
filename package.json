@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node cli.js"
   },
   "engines": {
     "node": ">=8.0.0"
