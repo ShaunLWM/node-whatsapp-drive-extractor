@@ -71,7 +71,8 @@ function printDebug(msg) {
             }
 
             if (download) {
-                return await Extrator.downloadAll(output);
+                await Extrator.downloadAll(output);
+                return Extrator.closeFileStream();
             }
         });
     } catch (error) {

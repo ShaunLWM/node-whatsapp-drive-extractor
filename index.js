@@ -36,6 +36,12 @@ class Extractor {
         this.downloadBaseDirectory = path;
     }
 
+    closeFileStream() {
+        try {
+            if (logStream !== null) this.logStream.end();
+        } catch (error) { }
+    }
+
     async getGoogleAccountTokenFromAuth() {
         let encpass = encryptLogin(this.gmail, this.passw);
         let payload = { "Email": this.gmail, "EncryptedPasswd": encpass, "app": this.client_pkg, "client_sig": this.client_sig, "parentAndroidId": this.devid };
@@ -145,17 +151,16 @@ class Extractor {
         try {
             let files = this.localFileList();
             let data = JSON.parse(results);
-            data.map(entries => {
+            for (const entries of data) {
                 if (!files.includes(entries["m"]) || entries["f"].toLowerCase().includes("database")) {
-                    let local = `${folder}${path.sep}${entries["f"].replace("/", path.sep)}`;
-                    local = path.join(this.downloadBaseDirectory, local);
+                    let local = path.join(this.downloadBaseDirectory, folder, entries["f"].replace("/", path.sep));
                     if (fs.existsSync(local) && !local.toLowerCase().includes("database")) {
                         console.log(`[!] skipped ${local}`);
                     } else {
                         this.workerQueue.push({ entries_r: entries["r"], local, entries_m: entries["m"] });
                     }
                 }
-            });
+            }
 
             return true;
         } catch (error) {

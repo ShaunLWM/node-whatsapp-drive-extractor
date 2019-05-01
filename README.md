@@ -11,6 +11,24 @@ Download your synced WhatsApp medias from Google Drive backup
 ## Requirement
 - NodeJS v8 and above
 
+## Usage
+```
+Usage:
+        $ node cli.js --list/download --debug
+Options
+        --list          List all available files to download
+        --download      Download all available files
+        --output        Directory to download media to. Use with --download (default: current directory)
+        --debug         Print debugging message (default: false)
+Examples
+        $ node cli.js --list
+        # app will list all files to download
+        $ node cli.js --download
+        # app starts downloading all files to current directory
+        $ node cli.js --download --output "C:\"
+        # app starts downloading all files to given output directory
+```
+
 ## Instructions
 1. Clone the repository using "git clone xxx" or download  [master zip](https://github.com/ShaunLWM/node-whatsapp-drive-extractor/archive/master.zip)
 2.  `yarn install`
@@ -18,9 +36,7 @@ Download your synced WhatsApp medias from Google Drive backup
 4. Run `npm start` or `node cli.js`.
 
 ## TODO
-- commandline version
-- able to list files without downloading
-- prevent files download duplication
+- None for now
 
 ## Troubleshooting
 - If you are using 2FA on Google, you have to generate an [App Password](https://support.google.com/accounts/answer/185833?hl=en)
