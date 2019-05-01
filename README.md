@@ -1,6 +1,6 @@
 # node-whatsapp-drive-extractor
 
-[!["Latest Release"](https://img.shields.io/github/release/ShaunLWM/node-whatsapp-drive-extractor.svg)](https://github.com/ShaunLWM/node-whatsapp-drive-extractor/releases/latest)
+[!["Monthly Download"](https://img.shields.io/npm/dm/node-whatsapp-drive-extractor.svg)](https://npmjs.org/package/node-whatsapp-drive-extractor)
 [!["Latest Release"](https://img.shields.io/npm/v/node-whatsapp-drive-extractor.svg)](https://github.com/ShaunLWM/node-whatsapp-drive-extractor/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/ShaunLWM/node-whatsapp-drive-extractor/blob/master/LICENSE)
 
@@ -31,9 +31,9 @@ Examples
 
 ## Instructions
 1. Clone the repository using "git clone xxx" or download  [master zip](https://github.com/ShaunLWM/node-whatsapp-drive-extractor/archive/master.zip)
-2.  `yarn install`
-3. Rename `config-sample.js` to `config.js` and fill in required details `gmail,passw & celnumbr`.
-4. Run `npm start` or `node cli.js`.
+2.  `yarn install` or `npm install`
+3. Rename `config-sample.js` to `config.js` and fill in required details `gmail, passw & celnumbr`.
+4. Run `npm start` or `node cli.js --help`.
 
 ## TODO
 - None for now
@@ -43,3 +43,6 @@ Examples
 
 ## Credits
 - [YuriCosta/WhatsApp-GD-Extractor-Multithread](https://github.com/YuriCosta/WhatsApp-GD-Extractor-Multithread)
+
+## License
+MIT License - Copyright (c) 2019 Shaun
