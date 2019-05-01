@@ -29,6 +29,7 @@ class Extractor {
         this.workerQueue = [];
         this.logStream = null;
         this.downloadBaseDirectory = ".";
+        this.logfile = "";
     }
 
     setDownloadBaseDirectory(path = ".") {
@@ -169,14 +170,14 @@ class Extractor {
     }
 
     localFileList() {
-        let logfile = `.${path.sep}logs${path.sep}files.log`;
-        if (!fs.pathExistsSync(logfile)) {
-            fs.ensureFileSync(logfile);
+        this.logfile = path.join(this.downloadBaseDirectory, "files.log");
+        if (!fs.pathExistsSync(this.logfile)) {
+            fs.ensureFileSync(this.logfile);
             return this.localFileList();
         }
 
-        this.logStream = fs.createWriteStream(logfile, { flags: "a" });
-        let flist = fs.readFileSync(logfile, "utf8");
+        this.logStream = fs.createWriteStream(this.logfile, { flags: "a" });
+        let flist = fs.readFileSync(this.logfile, "utf8");
         return flist.split("\n");
     }
 
@@ -208,6 +209,7 @@ class Extractor {
                 });
 
                 console.log(`[-] downloaded ${local}  (${currentIndex}/${totalItems})`);
+                this.logStream.write(`${entries_m}\n`);
                 currentIndex++;
             } catch (error) {
                 console.error(error);
