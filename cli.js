@@ -1,5 +1,6 @@
 const meow = require("meow");
 const Extrator = require("./index");
+let debugMode = false;
 
 const cli = meow(`
 	Usage:
@@ -8,6 +9,7 @@ const cli = meow(`
         --list          List all available files to download
         --download      Download all available files
         --output        Directory to download media to. Use with --download
+        --debug         Print debugging message
 	Examples
         $ waex --list
         # app will list all files to download
@@ -19,6 +21,10 @@ const cli = meow(`
 `, {
         flags: {
             list: {
+                type: "boolean",
+                default: false
+            },
+            debug: {
                 type: "boolean",
                 default: false
             },
@@ -34,26 +40,32 @@ const cli = meow(`
         }
     });
 
+
+function printDebug(msg) {
+    if (debugMode) console.log(msg);
+}
+
 (async () => {
-    const { list, download, output } = cli.flags;
+    const { debug, list, download, output } = cli.flags;
+    debugMode = debug;
     try {
-        console.log(`[@] trying to login`);
+        printDebug(`[@] trying to login`);
         Extrator.setDownloadBaseDirectory(output);
         let token = await Extrator.getGoogleAccountTokenFromAuth();
-        console.log(`[@] got token from google`);
+        printDebug(`[@] got token from google`);
         let bearer = await Extrator.getGoogleDriveToken(token);
-        console.log(`[@] got bearer token`);
+        printDebug(`[@] got bearer token`);
         let drives = await Extrator.gDriveFileMap();
-        console.log(`[@] got drives`);
+        printDebug(`[@] got drives`);
         drives.map(async (drive, i) => {
             let folder = "WhatsApp";
             if (drives.length > 1) {
-                console.log(`[-] Backup: ${i}`);
+                printDebug(`[-] Backup: ${i}`);
                 folder = `WhatsApp-${i}`;
             }
 
             Extrator.getMultipleFiles(drive["results"], folder);
-            console.log("[@] file list successfully downloaded..");
+            printDebug("[@] file list successfully downloaded..");
             if (list) {
                 return console.log(Extrator.getFileList());
             }
