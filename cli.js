@@ -8,8 +8,8 @@ const cli = meow(`
 	Options
         --list          List all available files to download
         --download      Download all available files
-        --output        Directory to download media to. Use with --download
-        --debug         Print debugging message
+        --output        Directory to download media to. Use with --download (default: current directory)
+        --debug         Print debugging message (default: false)
 	Examples
         $ waex --list
         # app will list all files to download
