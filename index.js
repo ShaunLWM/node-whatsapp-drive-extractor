@@ -28,6 +28,11 @@ class Extractor {
         this.bearer = null;
         this.workerQueue = [];
         this.logStream = null;
+        this.downloadBaseDirectory = ".";
+    }
+
+    setDownloadBaseDirectory(path = ".") {
+        this.downloadBaseDirectory = path;
     }
 
     async getGoogleAccountTokenFromAuth() {
@@ -142,6 +147,7 @@ class Extractor {
             data.map(entries => {
                 if (!files.includes(entries["m"]) || entries["f"].toLowerCase().includes("database")) {
                     let local = `${folder}${path.sep}${entries["f"].replace("/", path.sep)}`;
+                    local = path.join(this.downloadBaseDirectory, local);
                     if (fs.existsSync(local) && !local.toLowerCase().includes("database")) {
                         console.log(`[!] skipped ${local}`);
                     } else {
@@ -174,7 +180,7 @@ class Extractor {
         return flist.split("\n");
     }
 
-    async downloadAll() {
+    async downloadAll(output = ".") {
         console.log("[@] trying to download all the files now..");
         if (this.workerQueue.length < 1) {
             throw new Error("Nothing to download");

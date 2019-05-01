@@ -7,28 +7,38 @@ const cli = meow(`
 	Options
         --list          List all available files to download
         --download      Download all available files
+        --output        Directory to download media to. Use with --download
 	Examples
         $ waex --list
         # app will list all files to download
-        $ pokemon --download
+        $ waex --download
         # app starts downloading all files to current directory
+        $ waex --download --output "C:\"
+        # app starts downloading all files to given output directory
         …
 `, {
         flags: {
             list: {
-                type: 'boolean',
-                default: true
+                type: "boolean",
+                default: false
             },
             download: {
-                type: 'boolean',
+                type: "boolean",
                 default: false
+            },
+            output: {
+                type: "string",
+                alias: "o",
+                default: "."
             }
         }
     });
 
 (async () => {
-    const { list, download } = cli.flags;
+    const { list, download, output } = cli.flags;
     try {
+        console.log(`[@] trying to login`);
+        Extrator.setDownloadBaseDirectory(output);
         let token = await Extrator.getGoogleAccountTokenFromAuth();
         console.log(`[@] got token from google`);
         let bearer = await Extrator.getGoogleDriveToken(token);
@@ -49,7 +59,7 @@ const cli = meow(`
             }
 
             if (download) {
-                return await Extrator.downloadAll();
+                return await Extrator.downloadAll(output);
             }
         });
     } catch (error) {
