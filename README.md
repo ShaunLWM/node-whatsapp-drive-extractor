@@ -14,26 +14,32 @@ Download your synced WhatsApp medias from Google Drive backup
 ## Usage
 ```
 Usage:
-        $ node cli.js --list/download --debug
+        $ waex
 Options
-        --list          List all available files to download
-        --download      Download all available files
-        --output        Directory to download media to. Use with --download (default: current directory)
+        --email, -e     Set your Google login email (compulsory)
+        --password, -p  Set your Google password, Read troubleshooting if you have problem (compulsory)
+        --phone, -n     Set your phone number (compulsory)
+
+        # either one of the commands below is needed
+        --list, -l          List all available files to download
+        --download, -d      Download all available files
+        --output, -o      Directory to download media to. Use with --download (default: current directory)
         --debug         Print debugging message (default: false)
+
 Examples
-        $ node cli.js --list
-        # app will list all files to download
-        $ node cli.js --download
-        # app starts downloading all files to current directory
-        $ node cli.js --download --output "C:\"
-        # app starts downloading all files to given output directory
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p 1234567890 --list
+        # app will login & will list all files to download
+
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p 1234567890 --download
+        # app will login & starts downloading all files to current directory
+
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p 1234567890 --download --output "C:\"
+        # app will login & starts downloading all files to given output directory
 ```
 
 ## Instructions
-1. Clone the repository using "git clone xxx" or download  [master zip](https://github.com/ShaunLWM/node-whatsapp-drive-extractor/archive/master.zip)
-2.  `yarn install` or `npm install`
-3. Rename `config-sample.js` to `config.js` and fill in required details `gmail, passw & celnumbr`.
-4. Run `npm start` or `node cli.js --help`.
+1. ```npm install -g node-whatsapp-drive-extractor``` or ```yarn global add node-whatsapp-drive-extractor```
+2. Follow the usage stated above
 
 ## TODO
 - None for now
