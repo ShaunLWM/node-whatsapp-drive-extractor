@@ -15,11 +15,11 @@ request = request.defaults({
 });
 
 class Extractor {
-    constructor({ email, password, phoneNumber }) {
+    constructor({ email, password, phone, devid }) {
         this.gmail = email;
         this.passw = password;
-        this.devid = config["auth"]["devid"];
-        this.celnumbr = phoneNumber;
+        this.devid = devid;
+        this.celnumbr = phone;
         this.pkg = config["app"]["pkg"];
         this.sig = config["app"]["sig"];
         this.client_pkg = config["client"]["pkg"];

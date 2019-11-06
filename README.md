@@ -10,30 +10,32 @@ Download your synced WhatsApp medias from Google Drive backup
 
 ## Requirement
 - NodeJS v8 and above
+- Retrieve your Device Id using [this](https://play.google.com/store/apps/details?id=com.evozi.deviceid)
 
 ## Usage
 ```
 Usage:
         $ waex
 Options
-        --email, -e     Set your Google login email (compulsory)
-        --password, -p  Set your Google password, Read troubleshooting if you have problem (compulsory)
-        --phone, -n     Set your phone number (compulsory)
+        --email, -e             Set your Google login email (compulsory)
+        --password, -p          Set your Google password, Read troubleshooting if you have problem (compulsory)
+        --phone, -n             Set your phone number (compulsory)
+        --devid, -i             Set your device Id (compulsory)
 
         # either one of the commands below is needed
-        --list, -l          List all available files to download
-        --download, -d      Download all available files
-        --output, -o      Directory to download media to. Use with --download (default: current directory)
-        --debug         Print debugging message (default: false)
+        --list, -l              List all available files to download
+        --download, -d          Download all available files
+        --output, -o            Directory to download media to. Use with --download (default: current directory)
+        --debug                 Print debugging message (default: false)
 
-Examples
-        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p 1234567890 --list
+	Examples
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p YOUR_PHONE -i YOUR_DEVICEID --list
         # app will login & will list all files to download
 
-        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p 1234567890 --download
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p YOUR_PHONE -i YOUR_DEVICEID --download
         # app will login & starts downloading all files to current directory
 
-        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p 1234567890 --download --output "C:\"
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p YOUR_PHONE -i YOUR_DEVICEID --download --output "C:\"
         # app will login & starts downloading all files to given output directory
 ```
 
