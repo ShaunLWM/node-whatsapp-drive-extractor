@@ -1,3 +1,5 @@
+# This is not working as of 6th Nov 2019. I am still trying to find a fix.
+
 # node-whatsapp-drive-extractor
 
 [!["Monthly Download"](https://img.shields.io/npm/dm/node-whatsapp-drive-extractor.svg)](https://npmjs.org/package/node-whatsapp-drive-extractor)

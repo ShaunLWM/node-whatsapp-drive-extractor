@@ -6,14 +6,6 @@ const config = require("./config");
 const async = require("async");
 const download = require("download");
 
-request = request.defaults({
-    headers: {
-        "Accept-Language": "en-US,en-SG;q=0.9,en;q=0.8",
-        "Connection": "keep-alive",
-        "User-Agent": "Mozilla/5.0 (Linux; U; Android 2.2; en-gb; GT-P1000 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1"
-    }
-});
-
 class Extractor {
     constructor({ email, password, phone, devid }) {
         this.gmail = email;
@@ -43,8 +35,14 @@ class Extractor {
     }
 
     async getGoogleAccountTokenFromAuth() {
-        let encpass = encryptLogin(this.gmail, this.passw);
-        let payload = { "Email": this.gmail, "EncryptedPasswd": encpass, "app": this.client_pkg, "client_sig": this.client_sig, "parentAndroidId": this.devid };
+        let payload = {
+            "Email": this.gmail,
+            "EncryptedPasswd": encryptLogin(this.gmail, this.passw),
+            "app": this.client_pkg,
+            "client_sig": this.client_sig,
+            "parentAndroidId": this.devid
+        };
+
         try {
             let opts = {
                 url: "https://android.clients.google.com/auth",
@@ -93,7 +91,11 @@ class Extractor {
             let opts = {
                 url,
                 headers: {
-                    "Authorization": `Bearer ${this.bearer}`
+                    "Authorization": `Bearer ${this.bearer}`,
+                    "User-Agent": "WhatsApp/2.19.291 Android/5.1.1 Device/samsung-SM-N950W",
+                    "Content-Type": "application/json; charset=UTF-8",
+                    "Connection": "Keep-Alive",
+                    "Accept-Encoding": "gzip"
                 }
             };
 
@@ -108,9 +110,25 @@ class Extractor {
         try {
             let data = await this.gDriveFileMapRequest(this.bearer);
             let jres = JSON.parse(data);
+            let incomplete_backup_marker = false;
+            let description_url = `https://backup.googleapis.com/v1/clients/wa/backups/${this.celnumbr}`;
+            let description = await this.rawGoogleDriveRequest(description_url);
+            if (typeof jres["files"] === "undefined") throw new Error("Unable to locate Google Drive Whatsapp backup.");
+            // if (typeof description["title"]["invisible"] !== "undefined") {
+            // https://github.com/YuriCosta/WhatsApp-GD-Extractor-Multithread/blob/master/WhatsAppGDExtract.py#L84
+            //     result["properties"].map(p => {
+            //         if (p["key"] == "imcomplete_backup_marker" && p["value"] === "true") imcomplete_backup_marker = true;
+            //     })
+            // }
+
+            if (jres.length === 0) {
+                if (imcomplete_backup_marker) throw new Error("[!] incomplete backup. it may be corrupted. try and backup again.");
+                else throw new Error("[!] no backup files found.");
+            }
+
             let backup = await Promise.all(jres["items"].map(async result => {
                 if (result["title"] === "gdrive_file_map") {
-                    let results = await this.rawGoogleDriveRequest(`https://www.googleapis.com/drive/v2/files/${result["id"]}?alt=media`);
+                    let results = await this.rawGoogleDriveRequest();
                     return {
                         description: result["description"],
                         results
@@ -129,15 +147,17 @@ class Extractor {
     }
 
     async gDriveFileMapRequest(bearer) {
-        let headers = {
-            "Authorization": `Bearer ${bearer}`
-        };
-
-        let url = `https://www.googleapis.com/drive/v2/files?mode=restore&spaces=appDataFolder&maxResults=1000&fields=items(description%2Cid%2CfileSize%2Ctitle%2Cmd5Checksum%2CmimeType%2CmodifiedDate%2Cparents(id)%2Cproperties(key%2Cvalue))%2CnextPageToken&q=title%20%3D%20'${this.celnumbr}-invisible'%20or%20title%20%3D%20'gdrive_file_map'%20or%20title%20%3D%20'Databases%2Fmsgstore.db.crypt12'%20or%20title%20%3D%20'Databases%2Fmsgstore.db.crypt11'%20or%20title%20%3D%20'Databases%2Fmsgstore.db.crypt10'%20or%20title%20%3D%20'Databases%2Fmsgstore.db.crypt9'%20or%20title%20%3D%20'Databases%2Fmsgstore.db.crypt8'`
+        let url = `https://backup.googleapis.com/v1/clients/wa/backups/${this.celnumbr}/files?pageSize=5000`;
         try {
             let opts = {
                 url,
-                headers
+                headers: {
+                    "Authorization": `Bearer ${bearer}`,
+                    "User-Agent": "WhatsApp/2.19.291 Android/5.1.1 Device/samsung-SM-N950W",
+                    "Content-Type": "application/json; charset=UTF-8",
+                    "Connection": "Keep-Alive",
+                    "Accept-Encoding": "gzip"
+                }
             };
 
             let results = await this.fetch(opts);
