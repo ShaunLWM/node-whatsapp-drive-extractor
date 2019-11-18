@@ -1,13 +1,13 @@
 {
   "name": "node-whatsapp-drive-extractor",
-  "version": "0.0.5",
+  "version": "0.0.5.1",
   "main": "index.js",
   "preferGlobal": true,
   "scripts": {
     "start": "node ./bin/cli.js"
   },
   "engines": {
-    "node": ">=8.0.0 <9"
+    "node": "^8"
   },
   "bin": {
     "waex": "./bin/cli.js"
