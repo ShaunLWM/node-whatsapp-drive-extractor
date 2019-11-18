@@ -7,7 +7,7 @@
     "start": "node ./bin/cli.js"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.0.0 <9"
   },
   "bin": {
     "waex": "./bin/cli.js"

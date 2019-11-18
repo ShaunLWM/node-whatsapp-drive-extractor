@@ -19,19 +19,11 @@ class Extractor {
         this.client_ver = config["client"]["ver"];
         this.bearer = null;
         this.workerQueue = [];
-        this.logStream = null;
         this.downloadBaseDirectory = ".";
-        this.logfile = "";
     }
 
     setDownloadBaseDirectory(path = ".") {
-        this.downloadBaseDirectory = path;
-    }
-
-    closeFileStream() {
-        try {
-            if (logStream !== null) this.logStream.end();
-        } catch (error) { }
+        this.downloadBaseDirectory = path.replace("/", path.sep);
     }
 
     async getGoogleAccountTokenFromAuth() {
@@ -94,8 +86,7 @@ class Extractor {
                     "Authorization": `Bearer ${this.bearer}`,
                     "User-Agent": "WhatsApp/2.19.291 Android/5.1.1 Device/samsung-SM-N950W",
                     "Content-Type": "application/json; charset=UTF-8",
-                    "Connection": "Keep-Alive",
-                    "Accept-Encoding": "gzip"
+                    "Connection": "Keep-Alive"
                 }
             };
 
@@ -110,37 +101,18 @@ class Extractor {
         try {
             let data = await this.gDriveFileMapRequest(this.bearer);
             let jres = JSON.parse(data);
-            let incomplete_backup_marker = false;
-            let description_url = `https://backup.googleapis.com/v1/clients/wa/backups/${this.celnumbr}`;
-            let description = await this.rawGoogleDriveRequest(description_url);
+            // let incomplete_backup_marker = false;
+            // let description_url = `https://backup.googleapis.com/v1/clients/wa/backups/${this.celnumbr}`;
+            // let description = await this.rawGoogleDriveRequest(description_url);
             if (typeof jres["files"] === "undefined") throw new Error("Unable to locate Google Drive Whatsapp backup.");
-            // if (typeof description["title"]["invisible"] !== "undefined") {
-            // https://github.com/YuriCosta/WhatsApp-GD-Extractor-Multithread/blob/master/WhatsAppGDExtract.py#L84
-            //     result["properties"].map(p => {
-            //         if (p["key"] == "imcomplete_backup_marker" && p["value"] === "true") imcomplete_backup_marker = true;
-            //     })
-            // }
-
-            if (jres.length === 0) {
+            if (jres["files"].length === 0) {
                 if (imcomplete_backup_marker) throw new Error("[!] incomplete backup. it may be corrupted. try and backup again.");
                 else throw new Error("[!] no backup files found.");
             }
 
-            let backup = await Promise.all(jres["items"].map(async result => {
-                if (result["title"] === "gdrive_file_map") {
-                    let results = await this.rawGoogleDriveRequest();
-                    return {
-                        description: result["description"],
-                        results
-                    };
-                }
-            }))
-
-            if (backup.length < 1) {
-                return new Error(`[!]gDriveFileMap: Unable to locate google drive file map for: ${this.pkg}`);
-            }
-
-            return backup.filter(b => b !== null && typeof b !== "undefined");
+            this.workerQueue = jres["files"].map(file => {
+                return file["name"];
+            });
         } catch (error) {
             throw new Error(`[!] gDriveFileMap error ${error}`);
         }
@@ -155,8 +127,7 @@ class Extractor {
                     "Authorization": `Bearer ${bearer}`,
                     "User-Agent": "WhatsApp/2.19.291 Android/5.1.1 Device/samsung-SM-N950W",
                     "Content-Type": "application/json; charset=UTF-8",
-                    "Connection": "Keep-Alive",
-                    "Accept-Encoding": "gzip"
+                    "Connection": "Keep-Alive"
                 }
             };
 
@@ -167,74 +138,36 @@ class Extractor {
         }
     }
 
-    getMultipleFiles(results, folder) {
-        try {
-            let files = this.localFileList();
-            let data = JSON.parse(results);
-            for (const entries of data) {
-                if (!files.includes(entries["m"]) || entries["f"].toLowerCase().includes("database")) {
-                    let local = path.join(this.downloadBaseDirectory, folder, entries["f"].replace("/", path.sep));
-                    if (fs.existsSync(local) && !local.toLowerCase().includes("database")) {
-                        console.log(`[!] skipped ${local}`);
-                    } else {
-                        this.workerQueue.push({ entries_r: entries["r"], local, entries_m: entries["m"] });
-                    }
-                }
-            }
-
-            return true;
-        } catch (error) {
-            throw new Error(error);
-        }
-    }
-
     getFileList() {
-        return this.workerQueue.map(file => {
-            return file["local"];
-        })
-    }
-
-    localFileList() {
-        this.logfile = path.join(this.downloadBaseDirectory, "files.log");
-        if (!fs.pathExistsSync(this.logfile)) {
-            fs.ensureFileSync(this.logfile);
-            return this.localFileList();
-        }
-
-        this.logStream = fs.createWriteStream(this.logfile, { flags: "a" });
-        let flist = fs.readFileSync(this.logfile, "utf8");
-        return flist.split("\n");
+        return this.workerQueue;
     }
 
     async downloadAll(output = ".") {
         console.log("[@] trying to download all the files now..");
-        if (this.workerQueue.length < 1) {
-            throw new Error("Nothing to download");
-        }
-
+        if (this.workerQueue.length < 1) throw new Error("[!] Nothing to download");
         console.log(`[@] ${this.workerQueue.length} files to download..`);
         let totalItems = this.workerQueue.length;
         let currentIndex = 1;
         async.eachSeries(this.workerQueue, async (item, callback) => {
-            let { entries_r, local, entries_m } = item;
-            fs.ensureDirSync(path.dirname(local));
-            if (fs.pathExistsSync(local)) {
-                const stat = fs.lstatSync(local);
-                if (stat.isFile()) {
-                    fs.unlinkSync(local);
-                }
+            let downloadFilePath = path.join(this.downloadBaseDirectory, "Whatsapp", item.replace("/", path.sep));
+            fs.ensureDirSync(path.dirname(downloadFilePath));
+            if (fs.pathExistsSync(downloadFilePath)) {
+                const stat = fs.lstatSync(downloadFilePath);
+                if (stat.isFile()) fs.unlinkSync(downloadFilePath);
             }
 
             try {
-                await download(`https://www.googleapis.com/drive/v2/files/${entries_r}?alt=media`, path.dirname(local), {
+                await download(`https://backup.googleapis.com/v1/${item}?alt=media`, path.dirname(downloadFilePath), {
                     headers: {
                         "Authorization": `Bearer ${this.bearer}`,
+                        "User-Agent": "WhatsApp/2.19.291 Android/5.1.1 Device/samsung-SM-N950W",
+                        "Content-Type": "application/json; charset=UTF-8",
+                        "Connection": "Keep-Alive"
                     },
-                    filename: path.basename(local)
+                    filename: path.basename(downloadFilePath)
                 });
 
-                console.log(`[-] downloaded ${local}  (${currentIndex}/${totalItems})`);
-                this.logStream.write(`${entries_m}\n`);
+                console.log(`[-] downloaded ${downloadFilePath}  (${currentIndex}/${totalItems})`);
                 currentIndex++;
             } catch (error) {
                 console.error(error);

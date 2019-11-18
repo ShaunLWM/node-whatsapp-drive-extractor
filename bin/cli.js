@@ -20,14 +20,15 @@ const cli = meow(`
         --debug             Print debugging message (default: false)
 
 	Examples
-        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p YOUR_PHONE -i YOUR_DEVICEID --list
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -n YOUR_PHONE -i YOUR_DEVICEID --list
         # app will login & will list all files to download
 
-        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p YOUR_PHONE -i YOUR_DEVICEID --download
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -n YOUR_PHONE -i YOUR_DEVICEID --download
         # app will login & starts downloading all files to current directory
 
-        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -p YOUR_PHONE -i YOUR_DEVICEID --download --output "C:\"
+        $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -n YOUR_PHONE -i YOUR_DEVICEID --download --output "C:"
         # app will login & starts downloading all files to given output directory
+        # WARNING: DO NOT end your output folder with "\" - example: "C:\" <- this wil cause a problem
 `, {
     flags: {
         email: {
@@ -84,26 +85,10 @@ function printDebug(msg) {
         printDebug(`[@] got token from google`);
         let bearer = await Extrator.getGoogleDriveToken(token);
         printDebug(`[@] got bearer token`);
-        let drives = await Extrator.gDriveFileMap();
-        printDebug(`[@] got drives`);
-        drives.map(async (drive, i) => {
-            let folder = "WhatsApp";
-            if (drives.length > 1) {
-                printDebug(`[-] Backup: ${i}`);
-                folder = `WhatsApp-${i}`;
-            }
-
-            Extrator.getMultipleFiles(drive["results"], folder);
-            printDebug("[@] file list successfully downloaded..");
-            if (list) {
-                return console.log(Extrator.getFileList());
-            }
-
-            if (download) {
-                await Extrator.downloadAll(output);
-                return Extrator.closeFileStream();
-            }
-        });
+        await Extrator.gDriveFileMap();
+        printDebug(`[@] got files`);
+        if (list) return console.log(Extrator.getFileList());
+        if (download) return await Extrator.downloadAll(output);
     } catch (error) {
         console.error(error);
     }
