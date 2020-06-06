@@ -1,27 +1,27 @@
 {
-  "name": "node-whatsapp-drive-extractor",
-  "version": "0.0.6",
-  "main": "index.js",
-  "preferGlobal": true,
-  "scripts": {
-    "start": "node ./bin/cli.js"
-  },
-  "engines": {
-    "node": "^8"
-  },
-  "bin": {
-    "waex": "./bin/cli.js"
-  },
-  "repository": "https://github.com/ShaunLWM/node-whatsapp-drive-extractor.git",
-  "author": "ShaunLWM",
-  "license": "MIT",
-  "dependencies": {
-    "async": "^3.1.0",
-    "download": "^7.1.0",
-    "fs-extra": "^8.1.0",
-    "gpapi": "^4.5.0",
-    "meow": "^5.0.0",
-    "request": "^2.88.0",
-    "rsa-pem-from-mod-exp": "^0.8.4"
-  }
+	"name": "node-whatsapp-drive-extractor",
+	"version": "0.0.6",
+	"main": "index.js",
+	"preferGlobal": true,
+	"scripts": {
+		"start": "node ./bin/cli.js"
+	},
+	"engines": {
+		"node": ">=8.0.0"
+	},
+	"bin": {
+		"waex": "./bin/cli.js"
+	},
+	"repository": "https://github.com/ShaunLWM/node-whatsapp-drive-extractor.git",
+	"author": "ShaunLWM",
+	"license": "MIT",
+	"dependencies": {
+		"async": "^3.1.0",
+		"download": "^7.1.0",
+		"fs-extra": "^8.1.0",
+		"gpapi": "^4.5.0",
+		"meow": "^5.0.0",
+		"request": "^2.88.0",
+		"rsa-pem-from-mod-exp": "^0.8.4"
+	}
 }

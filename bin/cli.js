@@ -4,7 +4,8 @@ const meow = require("meow");
 const WhatsAppExtrator = require("../index");
 let debugMode = false;
 
-const cli = meow(`
+const cli = meow(
+	`
 	Usage:
         $ waex
     Options
@@ -29,67 +30,78 @@ const cli = meow(`
         $ waex -e YOUR_EMAIL@gmail.com -p YOUR_PASSOWRD -n YOUR_PHONE -i YOUR_DEVICEID --download --output "C:"
         # app will login & starts downloading all files to given output directory
         # WARNING: DO NOT end your output folder with "\" - example: "C:\" <- this wil cause a problem
-`, {
-    flags: {
-        email: {
-            type: "string",
-            alias: "e",
-        },
-        password: {
-            type: "string",
-            alias: "p",
-        },
-        phone: {
-            type: "string",
-            alias: "n",
-        },
-        devid: {
-            type: "string",
-            alias: "i",
-        },
-        list: {
-            type: "boolean",
-            alias: "l",
-            default: false
-        },
-        debug: {
-            type: "boolean",
-            default: false
-        },
-        download: {
-            type: "boolean",
-            alias: "d",
-            default: false
-        },
-        output: {
-            type: "string",
-            alias: "o",
-            default: "."
-        }
-    }
-});
-
+`,
+	{
+		flags: {
+			email: {
+				type: "string",
+				alias: "e",
+			},
+			password: {
+				type: "string",
+				alias: "p",
+			},
+			phone: {
+				type: "string",
+				alias: "n",
+			},
+			devid: {
+				type: "string",
+				alias: "i",
+			},
+			list: {
+				type: "boolean",
+				alias: "l",
+				default: false,
+			},
+			debug: {
+				type: "boolean",
+				default: false,
+			},
+			download: {
+				type: "boolean",
+				alias: "d",
+				default: false,
+			},
+			output: {
+				type: "string",
+				alias: "o",
+				default: ".",
+			},
+		},
+	}
+);
 
 function printDebug(msg) {
-    if (debugMode) console.log(msg);
+	if (debugMode) console.log(msg);
 }
 
 (async () => {
-    const { email, password, phone, devid, debug, list, download, output } = cli.flags;
-    debugMode = debug;
-    try {
-        let Extrator = new WhatsAppExtrator({ email, password, phone, devid });
-        printDebug(`[@] trying to login`);
-        Extrator.setDownloadBaseDirectory(output);
-        let token = await Extrator.getGoogleAccountTokenFromAuth();
-        printDebug(`[@] got token from google`);
-        let bearer = await Extrator.getGoogleDriveToken(token);
-        printDebug(`[@] got bearer token`);
-        await Extrator.gDriveFileMap();
-        printDebug(`[@] got files`);
-        if (list) return console.log(Extrator.getFileList());
-        if (download) return await Extrator.downloadAll(output);
-    } catch (error) {
-        console.error(error);
-    }
+	const {
+		email,
+		password,
+		phone,
+		devid,
+		debug,
+		list,
+		download,
+		output,
+	} = cli.flags;
+
+	debugMode = debug;
+	try {
+		const Extrator = new WhatsAppExtrator({ email, password, phone, devid });
+		printDebug(`[@] trying to login`);
+		Extrator.setDownloadBaseDirectory(output);
+		const token = await Extrator.getGoogleAccountTokenFromAuth();
+		printDebug(`[@] got token from google`);
+		await Extrator.getGoogleDriveToken(token);
+		printDebug(`[@] got bearer token`);
+		await Extrator.gDriveFileMap("");
+		printDebug(`[@] got files`);
+		if (list) return console.log(Extrator.getFileList());
+		if (download) return await Extrator.downloadAll(output);
+	} catch (error) {
+		console.error(error);
+	}
 })();

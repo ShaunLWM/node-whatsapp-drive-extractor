@@ -9,11 +9,13 @@ Download your synced WhatsApp medias from Google Drive backup
 ![script preview](https://i.imgur.com/KTnTeji.png)
 
 ## Requirement
+
 - NodeJS v8~ ONLY (apparently there is some bug that prevents higher version of NodeJS from logging in to Google's servers)
 - Retrieve your Device Id using [this](https://play.google.com/store/apps/details?id=com.evozi.deviceid)
 - Tested on Node v8.16.2
 
 ## Usage
+
 ```
 Usage:
         $ waex
@@ -42,22 +44,27 @@ Options
 ```
 
 ## Instructions
-1. ```npm install -g node-whatsapp-drive-extractor``` or ```yarn global add node-whatsapp-drive-extractor```
+
+1. `npm install -g node-whatsapp-drive-extractor` or `yarn global add node-whatsapp-drive-extractor`
 2. Follow the usage stated above
 
 OR
 
-1. ```npx node-whatsapp-drive-extractor [..options]```
+1. `npx node-whatsapp-drive-extractor [..options]`
 
 ## TODO
+
 - None for now
 
 ## Troubleshooting
+
 - If you are using 2FA on Google, you have to generate an [App Password](https://support.google.com/accounts/answer/185833?hl=en)
 - Your phone number is your country code and phone number. When in doubt, view your Google Drive backup folders.
 
 ## Credits
+
 - [YuriCosta/WhatsApp-GD-Extractor-Multithread](https://github.com/YuriCosta/WhatsApp-GD-Extractor-Multithread)
 
 ## License
-MIT License - Copyright (c) 2019 Shaun
+
+MIT License - Copyright (c) 2020 Shaun
