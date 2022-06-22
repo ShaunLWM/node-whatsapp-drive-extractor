@@ -16,7 +16,7 @@
 	"author": "ShaunLWM",
 	"license": "MIT",
 	"dependencies": {
-		"async": "^3.1.0",
+		"async": "^3.2.2",
 		"download": "^7.1.0",
 		"fs-extra": "^8.1.0",
 		"gpapi": "^4.5.0",
